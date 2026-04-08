@@ -1,0 +1,10 @@
+Application Id: 916479
+Access Key: xgRTMipOAyfiO7NOzFLTsKlA5pgfO3rRRVxv4FRoi90
+Secret Key: qHZwrvp0LyuvKpJK5DUVRRkNiQ0mzCJoXVu2IJn-coE
+
+
+City:
+
+OpenWeather API Key: a4f414fbeea655f3a7cfa0563d6521d0
+
+TimeZoneDB API Key: OVQRR8YTEUH7  

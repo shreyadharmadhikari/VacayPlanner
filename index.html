@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dream Vacation Planner</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Electrolize&family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Italianno&family=Leckerli+One&family=Lobster&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Pacifico&family=Pattaya&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <nav class="navbar">
+        <h1>VacayPlanner</h1>
+        <ul class="hide" id="navLinks" aria-expanded="false">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#explore">Explore</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+        <button id="theme-btn" class="dark">☀︎</button>
+
+        <span id="menu-icon">☰</span>
+      </nav>
+    </header>
+    <main>
+      <section class="hero">
+        <h1 aria-current="page">Dream Vacation Planner</h1>
+        <p>
+          Plan your perfect trip with ease — discover destinations, set your
+          budget, and explore smarter.
+        </p>
+      </section>
+      <section
+        class="searchDestination"
+        aria-details="searchHead"
+        id="dest-search-and-card"
+      >
+        <h2 aria-describedby="searchDest" id="searchHead">
+          Search your next Travel Destination
+        </h2>
+        <form
+          aria-roledescription="Take user input country to search travel information"
+          id="dest-search-form"
+        >
+          <div class="searchBox-container">
+            <input
+              type="text"
+              id="searchDest"
+              placeholder="Where to?"
+              list="destinationsList"
+              required
+            />
+
+            <span id="searchEmoji">🔍︎</span>
+
+            <select name="placeInputDropdown" id="placeInputDropdown" required>
+              <option value="city">City</option>
+              <option value="state">State</option>
+              <option value="country">Country</option>
+            </select>
+            <div class="search-btn-container">
+              <button id="search-btn" type="submit">Let's Go!</button>
+            </div>
+          </div>
+        </form>
+        <section class="searchResult" id="searchResult">
+          <h2 id="vacayHead">
+            ✈️ Vacay Destination: <span id="place-name"></span>
+          </h2>
+          <section id="dest-result-container">
+            <div id="dest-result-hero">
+              <div id="dest-result-info-wrapper">
+                <div id="dest-result-info"></div>
+              </div>
+            </div>
+            <div class="dest-point">1</div>
+            <div class="dest-point">2</div>
+            <div class="dest-point">3</div>
+            <div class="dest-point">4</div>
+            <div class="dest-point">5</div>
+            <div class="dest-point">6</div>
+          </section>
+
+          <div id="loading"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
