@@ -27,12 +27,13 @@
     10%,
     rgb(20, 93, 250),
     70%,
-    rgb(21, 238, 253)
+    rgb(23, 223, 250)
   );
-  --hover-color: rgba(21, 238, 253, 0.9);
+  --hover-color: rgb(23, 223, 250);
   --box-shadow-color: rgba(107, 107, 107, 0.5);
-  --hover-transparent: rgba(21, 237, 253, 0.7);
+  --hover-transparent: rgba(23, 223, 250, 0.7);
   --gray-shade: rgba(170, 170, 170, 0.7);
+  --glow-effect: rgba(23, 223, 250, 0.52);
 }
 
 .navbar {
@@ -272,6 +273,15 @@ main {
   right: calc(anchor(right) + 1rem);
 }
 
+#search-result-outer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: fit-content;
+  margin-bottom: 1rem;
+}
+
 #placeInputDropdown {
   width: 84%;
   padding: 0.4rem 1rem;
@@ -284,6 +294,26 @@ main {
   font-size: 1rem;
   padding: 0.2rem 1rem;
   border-radius: 10px;
+}
+
+#error {
+  display: none;
+}
+
+#error.visible {
+  width: max-content;
+  height: max-content;
+  padding: 1rem;
+  font-size: clamp(1.1rem, 2.4vw, 1.8rem);
+  color: var(--text-color);
+  display: block;
+  text-align: center;
+}
+
+#error.visible img {
+  margin-block: 1rem;
+  width: 30vw;
+  border-radius: 20px;
 }
 
 #searchDest::placeholder {
@@ -367,6 +397,7 @@ main {
   border-bottom: 2px solid var(--hover-color);
   animation: loadingSpinner 0.65s linear infinite forwards;
   align-self: center;
+  margin-top: 4rem;
 }
 
 @keyframes loadingSpinner {
@@ -386,18 +417,22 @@ main {
   display: block;
   width: 100vw;
   height: max-content;
-  padding: 1.5rem 1rem;
+  padding: 1.5rem 0rem;
   margin-block: 1.1rem;
-  box-shadow:
-    0px 0.5px 4px var(--hover-color),
-    0px -0.5px 4px var(--hover-color);
 }
 
 #searchResult #dest-result-container {
   display: grid;
   grid-template-columns: repeat(2, minmax(1fr, 400px));
-  grid-template-rows: repeat(5, minmax(150px, 1fr));
-  gap: 0.7rem;
+  grid-template-rows: repeat(5, minmax(160px, 1fr));
+  width: 100vw;
+  height: max-content;
+  gap: clamp(1.1rem, 2vw, 1.4rem);
+  padding: 1rem;
+  margin: 0 auto;
+  justify-items: center;
+  justify-content: space-between;
+  align-content: space-evenly;
 }
 
 #searchResult #place-name {
@@ -417,20 +452,17 @@ main {
 #dest-result-hero {
   grid-column: 1 / span 2;
   grid-row: 1 / span 2;
-  margin: 0;
-  padding: 0;
-}
-
-.dest-point {
-  background: lightgray;
-  color: black;
-  display: grid;
-  place-items: center;
-  font-size: 1.1rem;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  border: 2px solid var(--hover-color);
+  box-shadow: 0px 0px 10px 1px var(--glow-effect);
 }
 
 #dest-result-hero > #dest-result-info-wrapper {
   position: relative;
+  inset: 0;
   display: block;
   background-repeat: no-repeat;
   background-size: cover;
@@ -438,6 +470,7 @@ main {
   width: 100%;
   height: 100%;
   transition: transform 0.3s ease;
+  border-radius: 14px;
   margin: 0;
   padding: 0;
 }
@@ -469,6 +502,89 @@ main {
   margin: 0;
 }
 
+#dest-result-info > #viewItinerary {
+  display: inline-block;
+  font-size: clamp(0.9rem, 2.4vw, 1.1rem);
+  background: var(--gradient-theme);
+  padding: 0.2rem 0;
+  width: 100%;
+  color: var(--text-color);
+  margin: 0.4rem 0;
+  border: 1px solid var(--hover-color);
+  border-radius: 16px;
+  transition: transform 0.3s ease;
+}
+
+#dest-result-info > #viewItinerary:hover {
+  transform: scale(1.05);
+  background: var(--bg-color);
+  cursor: pointer;
+  color: var(--hover-color);
+}
+
+#dest-result-info > #viewItinerary:active {
+  transform: scale(0.97);
+}
+
+#dest-result-container > .dest-point {
+  aspect-ratio: 1.18/1;
+  min-width: 140px;
+  max-width: 200px;
+  margin: 0.2rem;
+  border: 1px solid var(--hover-color);
+  box-shadow: 0px 0px 10px 1px var(--glow-effect);
+  border-radius: 16px;
+  background: rgb(31, 31, 31);
+  color: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  height: fit-content;
+}
+
+#dest-result-container > .dest-point > img {
+  width: 100%;
+  aspect-ratio: 1.65/1;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  mask-image: linear-gradient(180deg, black 0%, black 88%, transparent 100%);
+  object-fit: cover;
+}
+
+#dest-result-container > .dest-point > h4 {
+  color: var(--text-color);
+  font-size: clamp(0.7rem, 2vw, 0.95rem);
+  font-weight: 400;
+  width: 100%;
+  text-align: center;
+  text-overflow: hidden;
+  margin-top: auto;
+  padding-block: 0.4rem;
+}
+
+#dest-result-container > .dest-point > button {
+  font-size: clamp(0.7rem, 2vw, 0.95rem);
+  padding: 0.2rem 0;
+  width: 100%;
+  height: max-content;
+  background: transparent;
+  color: var(--hover-color);
+  border: 1px solid var(--hover-color);
+  border-radius: 16px;
+}
+
+#dest-result-container > .dest-point > button:hover {
+  box-shadow: 0px 0px 3px 1px var(--hover-color);
+  cursor: pointer;
+}
+
+button .locImg {
+  width: 0.9rem;
+  margin-inline-end: 0.5rem;
+}
+
 #dest-result-info > #weatherDesc {
   display: inline-block;
   width: max-content;
@@ -490,7 +606,7 @@ main {
   margin: 0;
 }
 
-@media (768px <= width <= 1024px) {
+@media (630px <= width <= 1024px) {
   #menu-icon {
     display: none;
   }
