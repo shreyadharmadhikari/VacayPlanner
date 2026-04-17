@@ -2,6 +2,115 @@ const menuIcon = document.getElementById("menu-icon");
 const navLinks = document.getElementById("navLinks");
 const anchors = document.querySelectorAll("a");
 const themeBtn = document.querySelector("#theme-btn");
+const homeEle = document.getElementById("home");
+const explore = document.getElementById("explore");
+const favorites = document.getElementById("favorites");
+let currentViewedPlace = null;
+const tripsInFavs = JSON.parse(localStorage.getItem("favorites")) || [];
+
+homeEle.classList.remove("hidden");
+explore.classList.add("hidden");
+favorites.classList.add("hidden");
+
+const navigationHandler = () => {
+  const navTabs = document.querySelectorAll("#navLinks a");
+
+  const navBar = document.querySelector(".navbar");
+
+  navBar.classList.remove("hidden");
+
+  navTabs.forEach((tab) => {
+    console.log(tab.innerText);
+    tab.addEventListener("click", () => {
+      const homeEle = document.getElementById("home");
+      const explore = document.getElementById("explore");
+      const favorites = document.getElementById("favorites");
+      if (tab.innerText.toLowerCase() === "home") {
+        homeEle.classList.remove("hidden");
+        explore.classList.add("hidden");
+        favorites.classList.add("hidden");
+        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      } else if (tab.innerText.toLowerCase() === "explore") {
+        homeEle.classList.add("hidden");
+        explore.classList.remove("hidden");
+        favorites.classList.add("hidden");
+        explore.scrollIntoView((behavior = "smooth"), (block = "start"));
+      } else if (tab.innerText.toLowerCase() === "favorites") {
+        homeEle.classList.add("hidden");
+        explore.classList.add("hidden");
+        favorites.classList.remove("hidden");
+        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+        let htmlTextToAdd = "";
+        favorites.classList.remove("hidden");
+        const favoriteList = JSON.parse(localStorage.getItem("favorites"));
+
+        if (!favoriteList || favoriteList.length === 0) {
+          htmlTextToAdd = `
+          <div id="no-favs">
+           <h2>No favorite places added yet.</h2>
+           <h2>Explore and Add to Favorites!❤</h2>
+           </div>
+           `;
+          favorites.innerHTML = htmlTextToAdd;
+        } else {
+          let count = 0;
+          favoriteList.forEach((place, index) => {
+            count += 1;
+            htmlTextToAdd += `
+            <div class="fav-container">
+                  <span>${count}.&nbsp${place.name[0].toUpperCase() + place.name.slice(1, place.length).toLowerCase()}</span>
+                  <button data-obj="${index}">View Itenarary</button>
+                  <a href="#" data-obj="${index}">Remove</a>
+            </div>
+            `;
+          });
+          htmlTextToAdd = `
+          <h1>❤ Favorite Destinations List ❤</h1>
+          <div id="favorites-outer-container">
+              ${htmlTextToAdd}
+          </div>
+          `;
+
+          favorites.innerHTML = htmlTextToAdd;
+
+          const favlistViewItiBtns = document.querySelectorAll(
+            "#favorites-outer-container > .fav-container > button",
+          );
+
+          console.log(favlistViewItiBtns);
+
+          favlistViewItiBtns.forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const placeObjIndex = btn.getAttribute("data-obj");
+              const placeObj = favoriteList[placeObjIndex];
+              showItinerary(placeObj, true, "favorites");
+            });
+          });
+
+          const removeFromFavLinks = document.querySelectorAll(
+            "#favorites-outer-container > .fav-container > a",
+          );
+
+          removeFromFavLinks.forEach((link) => {
+            link.addEventListener("click", (e) => {
+              const objIndex = link.getAttribute("data-obj");
+              favoriteList.splice(objIndex, 1);
+              localStorage.setItem("favorites", JSON.stringify(favoriteList));
+              // Instead of location.reload(), try this:
+              e.preventDefault();
+              const favoritesTab = document.querySelector(
+                'a[href="#favorites"]',
+              ); // Or however you select your Fav tab
+              favoritesTab.click();
+            });
+          });
+        }
+      }
+    });
+  });
+};
+
+navigationHandler();
 
 menuIcon.addEventListener("click", () => {
   menuIcon.classList.toggle("active");
@@ -24,1057 +133,37 @@ anchors.forEach((a) => {
   });
 });
 
-themeBtn.addEventListener("click", () => {
-  if (themeBtn.classList.contains("dark")) {
-    themeBtn.textContent = "⏾";
-    themeBtn.classList.remove("dark");
-    themeBtn.classList.add("light");
-  } else {
-    themeBtn.textContent = "☀︎";
-    themeBtn.classList.remove("light");
-    themeBtn.classList.add("dark");
+if (localStorage.getItem("theme")) {
+  const rootEle = document.documentElement;
+  const userPreferredTheme = localStorage.getItem("theme");
+  if (userPreferredTheme === "dark") {
+    rootEle.setAttribute("data-theme", "dark");
+  } else if (userPreferredTheme === "light") {
+    rootEle.setAttribute("data-theme", "light");
   }
+}
+
+themeBtn.addEventListener("click", () => {
+  const themeMenu = document.querySelector("#theme-menu");
+  const rootEle = document.documentElement;
+  themeMenu.classList.toggle("hidden");
+  const liElements = document.querySelectorAll("#theme-menu > li");
+
+  liElements.forEach((ele) => {
+    ele.addEventListener("click", () => {
+      const selectedText = ele.innerText;
+      if (selectedText === "Dark") {
+        rootEle.setAttribute("data-theme", "dark");
+        localStorage.setItem("theme", "dark");
+        themeMenu.classList.add("hidden");
+      } else if (selectedText === "Light") {
+        rootEle.setAttribute("data-theme", "light");
+        localStorage.setItem("theme", "light");
+        themeMenu.classList.add("hidden");
+      }
+    });
+  });
 });
-
-const featuredDestinations = {
-  cities: {
-    delhi: {
-      attractions: [
-        "Red Fort",
-        "Qutub Minar",
-        "India Gate",
-        "Lotus Temple",
-        "Humayun's Tomb",
-        "Chandni Chowk",
-      ],
-      daysRequired: 3,
-      bestMonths: "October to March",
-    },
-    mumbai: {
-      attractions: [
-        "Gateway of India",
-        "Marine Drive",
-        "Siddhivinayak Temple",
-        "Elephanta Caves",
-        "Colaba Causeway",
-        "Juhu Beach",
-      ],
-      daysRequired: 3,
-      bestMonths: "October to February",
-    },
-    bangalore: {
-      attractions: [
-        "Lalbagh Botanical Garden",
-        "Cubbon Park",
-        "Bangalore Palace",
-        "Bannerghatta Park",
-        "ISKCON Temple",
-        "Vidhana Soudha",
-      ],
-      daysRequired: 2,
-      bestMonths: "October to February",
-    },
-    hyderabad: {
-      attractions: [
-        "Charminar",
-        "Golconda Fort",
-        "Ramoji Film City",
-        "Hussain Sagar Lake",
-        "Salar Jung Museum",
-        "Chowmahalla Palace",
-      ],
-      daysRequired: 3,
-      bestMonths: "November to February",
-    },
-    chennai: {
-      attractions: [
-        "Marina Beach",
-        "Kapaleeshwarar Temple",
-        "Santhome Cathedral",
-        "Government Museum",
-        "Guindy National Park",
-        "Golden Temple",
-      ],
-      daysRequired: 2,
-      bestMonths: "November to February",
-    },
-    kolkata: {
-      attractions: [
-        "Victoria Memorial",
-        "Howrah Bridge",
-        "Dakshineswar Kali Temple",
-        "Indian Museum",
-        "Park Street",
-        "Eco Park",
-      ],
-      daysRequired: 3,
-      bestMonths: "October to February",
-    },
-    pune: {
-      attractions: [
-        "Shaniwar Wada",
-        "Aga Khan Palace",
-        "Dagdusheth Halwai Temple",
-        "Sarasbaug",
-        "Sinhagad Fort",
-        "Khadakwasla Dam",
-      ],
-      daysRequired: 2,
-      bestMonths: "October to March",
-    },
-    ahmedabad: {
-      attractions: [
-        "Sabarmati Ashram",
-        "Adalaj Stepwell",
-        "Kankaria Lake",
-        "Sidi Saiyyed Mosque",
-        "Science City",
-      ],
-      daysRequired: 2,
-      bestMonths: "November to February",
-    },
-    jaipur: {
-      attractions: [
-        "Hawa Mahal",
-        "Amer Fort",
-        "City Palace",
-        "Jantar Mantar",
-        "Nahargarh Fort",
-        "Chokhi Dhani",
-      ],
-      daysRequired: 3,
-      bestMonths: "October to March",
-    },
-    surat: {
-      attractions: [
-        "Dumas Beach",
-        "Surat Castle",
-        "Dutch Garden",
-        "Science Centre",
-        "Ambika Niketan Temple",
-      ],
-      daysRequired: 2,
-      bestMonths: "October to March",
-    },
-    lucknow: {
-      attractions: [
-        "Bara Imambara",
-        "Chhota Imambara",
-        "Rumi Darwaza",
-        "The Residency",
-        "Ambedkar Memorial Park",
-      ],
-      daysRequired: 2,
-      bestMonths: "October to March",
-    },
-    kanpur: {
-      attractions: [
-        "JK Temple",
-        "Allen Forest Zoo",
-        "Blue World Theme Park",
-        "Moti Jheel",
-        "Z Square Mall",
-        "Bithoor",
-      ],
-      daysRequired: 2,
-      bestMonths: "October to March",
-    },
-    nagpur: {
-      attractions: [
-        "Deekshabhoomi",
-        "Ambazari Lake",
-        "Sitabuldi Fort",
-        "Futala Lake",
-        "Dragon Palace Temple",
-        "Zero Mile Marker",
-      ],
-      daysRequired: 2,
-      bestMonths: "October to March",
-    },
-    indore: {
-      attractions: [
-        "Rajwada Palace",
-        "Lal Bagh Palace",
-        "Khajrana Ganesh Temple",
-        "Sarafa Bazar",
-        "Patalpani Waterfall",
-      ],
-      daysRequired: 2,
-      bestMonths: "October to March",
-    },
-    bhopal: {
-      attractions: [
-        "Upper Lake",
-        "Van Vihar National Park",
-        "Sanchi Stupa",
-        "Bhimbetka Caves",
-        "Taj-ul-Masajid",
-      ],
-      daysRequired: 3,
-      bestMonths: "October to March",
-    },
-    visakhapatnam: {
-      attractions: [
-        "Rishikonda Beach",
-        "INS Kursura Submarine Museum",
-        "Kailasagiri",
-        "Araku Valley",
-        "Borra Caves",
-        "RK Beach",
-      ],
-      daysRequired: 3,
-      bestMonths: "October to March",
-    },
-    varanasi: {
-      attractions: [
-        "Kashi Vishwanath Temple",
-        "Dashashwamedh Ghat",
-        "Assi Ghat",
-        "Sarnath",
-        "Manikarnika Ghat",
-      ],
-      daysRequired: 2,
-      bestMonths: "November to February",
-    },
-    amritsar: {
-      attractions: [
-        "Golden Temple",
-        "Wagah Border",
-        "Jallianwala Bagh",
-        "Partition Museum",
-        "Durgiana Temple",
-      ],
-      daysRequired: 2,
-      bestMonths: "October to March",
-    },
-
-    tokyo: {
-      attractions: [
-        "Shibuya Crossing",
-        "Tokyo Tower",
-        "Senso-ji Temple",
-        "Meiji Jingu",
-        "Shinjuku Gyoen",
-        "Akihabara",
-      ],
-      daysRequired: 5,
-      bestMonths: "March to May & Sept to Nov",
-    },
-    "new york city": {
-      attractions: [
-        "Statue of Liberty",
-        "Times Square",
-        "Central Park",
-        "Empire State Building",
-        "Brooklyn Bridge",
-        "The MET",
-      ],
-      daysRequired: 5,
-      bestMonths: "April to June & Sept to Nov",
-    },
-    london: {
-      attractions: [
-        "London Eye",
-        "Tower Bridge",
-        "Big Ben",
-        "British Museum",
-        "Buckingham Palace",
-        "Tower of London",
-      ],
-      daysRequired: 4,
-      bestMonths: "March to May & Sept to Oct",
-    },
-    paris: {
-      attractions: [
-        "Eiffel Tower",
-        "Louvre Museum",
-        "Arc de Triomphe",
-        "Notre-Dame Cathedral",
-        "Sacré-Cœur",
-        "Champs-Élysées",
-      ],
-      daysRequired: 4,
-      bestMonths: "April to June & Oct to Nov",
-    },
-    dubai: {
-      attractions: [
-        "Burj Khalifa",
-        "Dubai Mall",
-        "Palm Jumeirah",
-        "Dubai Fountain",
-        "Museum of the Future",
-        "Burj Al Arab",
-      ],
-      daysRequired: 4,
-      bestMonths: "November to March",
-    },
-    singapore: {
-      attractions: [
-        "Gardens by the Bay",
-        "Marina Bay Sands",
-        "Sentosa Island",
-        "Universal Studios",
-        "Merlion Park",
-        "Jewel Changi",
-      ],
-      daysRequired: 3,
-      bestMonths: "December to June",
-    },
-    bangkok: {
-      attractions: [
-        "Grand Palace",
-        "Wat Arun",
-        "Wat Pho",
-        "Chatuchak Market",
-        "Khao San Road",
-        "Siam Paragon",
-      ],
-      daysRequired: 3,
-      bestMonths: "November to February",
-    },
-    "hong kong": {
-      attractions: [
-        "Victoria Peak",
-        "Tian Tan Buddha",
-        "Disneyland",
-        "Tsim Sha Tsui",
-        "Ocean Park",
-        "Lantau Island",
-      ],
-      daysRequired: 4,
-      bestMonths: "October to December",
-    },
-    shanghai: {
-      attractions: [
-        "The Bund",
-        "Yu Garden",
-        "Oriental Pearl Tower",
-        "Nanjing Road",
-        "Shanghai Disneyland",
-        "Jade Buddha Temple",
-      ],
-      daysRequired: 3,
-      bestMonths: "October to November",
-    },
-    beijing: {
-      attractions: [
-        "Great Wall",
-        "Forbidden City",
-        "Temple of Heaven",
-        "Summer Palace",
-        "Tiananmen Square",
-        "Ming Tombs",
-      ],
-      daysRequired: 4,
-      bestMonths: "September to October",
-    },
-    istanbul: {
-      attractions: [
-        "Hagia Sophia",
-        "Blue Mosque",
-        "Topkapi Palace",
-        "Grand Bazaar",
-        "Galata Tower",
-        "Basilica Cistern",
-      ],
-      daysRequired: 4,
-      bestMonths: "April to May & Sept to Oct",
-    },
-    "los angeles": {
-      attractions: [
-        "Hollywood Sign",
-        "Griffith Observatory",
-        "Santa Monica Pier",
-        "The Getty",
-        "Walk of Fame",
-        "Venice Beach",
-      ],
-      daysRequired: 4,
-      bestMonths: "March to May & Sept to Nov",
-    },
-    "san francisco": {
-      attractions: [
-        "Golden Gate Bridge",
-        "Alcatraz Island",
-        "Fisherman's Wharf",
-        "Lombard Street",
-        "Union Square",
-        "Painted Ladies",
-      ],
-      daysRequired: 3,
-      bestMonths: "September to November",
-    },
-    toronto: {
-      attractions: [
-        "CN Tower",
-        "Royal Ontario Museum",
-        "Distillery District",
-        "Casa Loma",
-        "Ripley's Aquarium",
-        "St. Lawrence Market",
-      ],
-      daysRequired: 3,
-      bestMonths: "June to September",
-    },
-    sydney: {
-      attractions: [
-        "Sydney Opera House",
-        "Harbour Bridge",
-        "Bondi Beach",
-        "The Rocks",
-        "Taronga Zoo",
-        "Darling Harbour",
-      ],
-      daysRequired: 4,
-      bestMonths: "September to November",
-    },
-    melbourne: {
-      attractions: [
-        "Federation Square",
-        "Royal Botanic Gardens",
-        "Great Ocean Road",
-        "Eureka Skydeck",
-        "St Kilda Beach",
-        "Queen Victoria Market",
-      ],
-      daysRequired: 3,
-      bestMonths: "March to May & Sept to Nov",
-    },
-    rome: {
-      attractions: [
-        "Colosseum",
-        "Trevi Fountain",
-        "Pantheon",
-        "Roman Forum",
-        "Vatican Museums",
-        "St. Peter's Basilica",
-      ],
-      daysRequired: 4,
-      bestMonths: "April to June & Sept to Oct",
-    },
-    barcelona: {
-      attractions: [
-        "Sagrada Família",
-        "Park Güell",
-        "Casa Batlló",
-        "La Rambla",
-        "Gothic Quarter",
-        "Camp Nou",
-      ],
-      daysRequired: 3,
-      bestMonths: "May to June & Sept to Oct",
-    },
-    berlin: {
-      attractions: [
-        "Brandenburg Gate",
-        "Reichstag",
-        "East Side Gallery",
-        "Museum Island",
-        "Checkpoint Charlie",
-        "Berlin Wall Memorial",
-      ],
-      daysRequired: 3,
-      bestMonths: "May to September",
-    },
-    amsterdam: {
-      attractions: [
-        "Rijksmuseum",
-        "Anne Frank House",
-        "Van Gogh Museum",
-        "Canal Cruise",
-        "Vondelpark",
-        "Dam Square",
-      ],
-      daysRequired: 3,
-      bestMonths: "April to May & Sept to Nov",
-    },
-    vienna: {
-      attractions: [
-        "Schönbrunn Palace",
-        "St. Stephen's Cathedral",
-        "Belvedere Palace",
-        "Vienna State Opera",
-        "Hofburg",
-        "Prater",
-      ],
-      daysRequired: 3,
-      bestMonths: "April to May & Sept to Oct",
-    },
-    prague: {
-      attractions: [
-        "Charles Bridge",
-        "Prague Castle",
-        "Old Town Square",
-        "Astronomical Clock",
-        "St. Vitus Cathedral",
-        "Jewish Quarter",
-      ],
-      daysRequired: 3,
-      bestMonths: "May to June & Sept to Oct",
-    },
-    budapest: {
-      attractions: [
-        "Parliament Building",
-        "Buda Castle",
-        "Fisherman's Bastion",
-        "Széchenyi Thermal Bath",
-        "Chain Bridge",
-        "Heroes' Square",
-      ],
-      daysRequired: 3,
-      bestMonths: "March to May & Sept to Oct",
-    },
-    seoul: {
-      attractions: [
-        "Gyeongbokgung Palace",
-        "N Seoul Tower",
-        "Bukchon Hanok Village",
-        "Myeong-dong",
-        "Lotte World",
-        "Dongdaemun Design Plaza",
-      ],
-      daysRequired: 4,
-      bestMonths: "March to May & Sept to Nov",
-    },
-    "kuala lumpur": {
-      attractions: [
-        "Petronas Towers",
-        "Batu Caves",
-        "Merdeka Square",
-        "KL Tower",
-        "Bukit Bintang",
-        "Sunway Lagoon",
-      ],
-      daysRequired: 2,
-      bestMonths: "December to February",
-    },
-    jakarta: {
-      attractions: [
-        "National Monument (Monas)",
-        "Istiqlal Mosque",
-        "Old Town (Kota Tua)",
-        "Taman Mini Indonesia Indah",
-        "Ancol Dreamland",
-      ],
-      daysRequired: 2,
-      bestMonths: "June to September",
-    },
-    "mexico city": {
-      attractions: [
-        "Zócalo",
-        "Chapultepec Castle",
-        "Museum of Anthropology",
-        "Palacio de Bellas Artes",
-        "Frida Kahlo Museum",
-        "Teotihuacan",
-      ],
-      daysRequired: 5,
-      bestMonths: "March to May",
-    },
-    cairo: {
-      attractions: [
-        "Pyramids of Giza",
-        "Egyptian Museum",
-        "Khan el-Khalili",
-        "Al-Azhar Mosque",
-        "Citadel of Saladin",
-        "Nile River Cruise",
-      ],
-      daysRequired: 3,
-      bestMonths: "October to April",
-    },
-    moscow: {
-      attractions: [
-        "Red Square",
-        "Kremlin",
-        "Saint Basil's Cathedral",
-        "Bolshoi Theatre",
-        "Gorky Park",
-        "Metro Stations Tour",
-      ],
-      daysRequired: 4,
-      bestMonths: "May to September",
-    },
-    lagos: {
-      attractions: [
-        "Lekki Conservation Centre",
-        "Nike Art Gallery",
-        "Tarkwa Bay Beach",
-        "National Museum",
-        "Freedom Park",
-      ],
-      daysRequired: 3,
-      bestMonths: "November to February",
-    },
-  },
-
-  states: {
-    maharashtra: {
-      attractions: [
-        "Ajanta & Ellora Caves",
-        "Mahabaleshwar",
-        "Gateway of India",
-        "Lonavala",
-        "Shirdi",
-        "Panchgani",
-        "Tadoba National Park",
-      ],
-      daysRequired: 8,
-      bestMonths: "October to March",
-    },
-    rajasthan: {
-      attractions: [
-        "Amer Fort",
-        "Udaipur Lake Palace",
-        "Jaisalmer Sand Dunes",
-        "Pushkar Lake",
-        "Mehrangarh Fort",
-        "Ranthambore National Park",
-      ],
-      daysRequired: 10,
-      bestMonths: "October to March",
-    },
-    "uttar pradesh": {
-      attractions: [
-        "Taj Mahal",
-        "Varanasi Ghats",
-        "Bara Imambara",
-        "Fatehpur Sikri",
-        "Mathura & Vrindavan",
-        "Sarnath",
-        "Agra Fort",
-      ],
-      daysRequired: 7,
-      bestMonths: "October to March",
-    },
-    "tamil nadu": {
-      attractions: [
-        "Meenakshi Amman Temple",
-        "Ooty",
-        "Kanyakumari",
-        "Mahabalipuram",
-        "Rameshwaram",
-        "Madurai",
-        "Kodaikanal",
-      ],
-      daysRequired: 9,
-      bestMonths: "November to March",
-    },
-    kerala: {
-      attractions: [
-        "Munnar Tea Gardens",
-        "Alleppey Backwaters",
-        "Wayanad",
-        "Thekkady",
-        "Varkala Beach",
-        "Kochi Fort",
-      ],
-      daysRequired: 7,
-      bestMonths: "September to March",
-    },
-    goa: {
-      attractions: [
-        "Calangute Beach",
-        "Basilica of Bom Jesus",
-        "Dudhsagar Falls",
-        "Palolem Beach",
-        "Panjim",
-        "Fort Aguada",
-      ],
-      daysRequired: 5,
-      bestMonths: "November to February",
-    },
-    "himachal pradesh": {
-      attractions: [
-        "Shimla Mall Road",
-        "Manali Solang Valley",
-        "Dharamshala",
-        "Spiti Valley",
-        "Kasol",
-        "Dalhousie",
-        "Rohtang Pass",
-      ],
-      daysRequired: 9,
-      bestMonths: "March to June & Sept to Nov",
-    },
-    uttarakhand: {
-      attractions: [
-        "Rishikesh",
-        "Nainital Lake",
-        "Mussoorie",
-        "Valley of Flowers",
-        "Haridwar",
-        "Auli Skiing",
-        "Jim Corbett Park",
-      ],
-      daysRequired: 8,
-      bestMonths: "March to June & Oct to Nov",
-    },
-    "jammu & kashmir": {
-      attractions: [
-        "Dal Lake Srinagar",
-        "Gulmarg Gondola",
-        "Pahalgam",
-        "Sonamarg",
-        "Vaishno Devi",
-        "Shankaracharya Temple",
-      ],
-      daysRequired: 7,
-      bestMonths: "March to August",
-    },
-
-    california: {
-      attractions: [
-        "Golden Gate Bridge",
-        "Yosemite National Park",
-        "Hollywood Sign",
-        "Disneyland Park",
-        "Big Sur Coastline",
-        "Napa Valley",
-      ],
-      daysRequired: 10,
-      bestMonths: "May to September",
-    },
-    florida: {
-      attractions: [
-        "Walt Disney World",
-        "Everglades National Park",
-        "Miami South Beach",
-        "Kennedy Space Center",
-        "Key West",
-        "Universal Orlando",
-      ],
-      daysRequired: 8,
-      bestMonths: "November to May",
-    },
-    hawaii: {
-      attractions: [
-        "Waikiki Beach",
-        "Pearl Harbor",
-        "Haleakala National Park",
-        "Na Pali Coast",
-        "Volcanoes National Park",
-        "Road to Hana",
-      ],
-      daysRequired: 7,
-      bestMonths: "April to June & September to November",
-    },
-    nevada: {
-      attractions: [
-        "Las Vegas Strip",
-        "Hoover Dam",
-        "Red Rock Canyon",
-        "Lake Tahoe",
-        "Valley of Fire State Park",
-        "Seven Magic Mountains",
-      ],
-      daysRequired: 4,
-      bestMonths: "March to May & September to November",
-    },
-    "new york (state)": {
-      attractions: [
-        "Niagara Falls",
-        "The Adirondacks",
-        "Finger Lakes",
-        "Statue of Liberty",
-        "Montauk Point Lighthouse",
-        "Letchworth State Park",
-      ],
-      daysRequired: 7,
-      bestMonths: "May to October",
-    },
-    queensland: {
-      attractions: [
-        "Great Barrier Reef",
-        "Gold Coast Beaches",
-        "Daintree Rainforest",
-        "Whitsunday Islands",
-        "Fraser Island",
-        "Sunshine Coast",
-      ],
-      daysRequired: 10,
-      bestMonths: "May to October",
-    },
-    "new south wales": {
-      attractions: [
-        "Sydney Opera House",
-        "Blue Mountains",
-        "Bondi Beach",
-        "Byron Bay",
-        "Hunter Valley Gardens",
-        "Jervis Bay",
-      ],
-      daysRequired: 8,
-      bestMonths: "September to November & March to May",
-    },
-    bavaria: {
-      attractions: [
-        "Neuschwanstein Castle",
-        "Marienplatz Munich",
-        "Zugspitze Mountain",
-        "Eagle's Nest",
-        "Rothenburg ob der Tauber",
-        "Lake Konigssee",
-      ],
-      daysRequired: 7,
-      bestMonths: "May to September",
-    },
-    "île-de-france": {
-      attractions: [
-        "Eiffel Tower",
-        "Palace of Versailles",
-        "Louvre Museum",
-        "Disneyland Paris",
-        "Fontainebleau Forest",
-        "Basilica of Saint-Denis",
-      ],
-      daysRequired: 6,
-      bestMonths: "April to June & September to October",
-    },
-    "provence-alpes-côte d’azur": {
-      attractions: [
-        "Promenade des Anglais",
-        "Verdon Gorge",
-        "Palais des Papes",
-        "Saint-Tropez Harbor",
-        "Lavender Fields (Valensole)",
-        "Cannes Croisette",
-      ],
-      daysRequired: 8,
-      bestMonths: "May to September",
-    },
-    catalonia: {
-      attractions: [
-        "Sagrada Família",
-        "Montserrat Monastery",
-        "Costa Brava",
-        "Salvador Dalí Museum",
-        "Tarragona Roman Ruins",
-        "Park Güell",
-      ],
-      daysRequired: 7,
-      bestMonths: "April to June & September to October",
-    },
-    tuscany: {
-      attractions: [
-        "Florence Duomo",
-        "Leaning Tower of Pisa",
-        "Siena Piazza del Campo",
-        "Chianti Vineyards",
-        "Uffizi Gallery",
-        "Val d'Orcia",
-      ],
-      daysRequired: 7,
-      bestMonths: "April to June & September to October",
-    },
-    lombardy: {
-      attractions: [
-        "Milan Duomo",
-        "Lake Como",
-        "Lake Garda",
-        "Teatro alla Scala",
-        "Sforza Castle",
-        "Certosa di Pavia",
-      ],
-      daysRequired: 6,
-      bestMonths: "April to June & September to October",
-    },
-    bali: {
-      attractions: [
-        "Uluwatu Temple",
-        "Tegalalang Rice Terrace",
-        "Sacred Monkey Forest",
-        "Mount Batur",
-        "Nusa Penida",
-        "Tanah Lot",
-      ],
-      daysRequired: 7,
-      bestMonths: "April to October",
-    },
-  },
-  countries: {
-    france: {
-      attractions: [
-        "Eiffel Tower",
-        "Louvre Museum",
-        "Palace of Versailles",
-        "French Riviera",
-        "Mont Saint-Michel",
-        "Chamonix Mont-Blanc",
-      ],
-      daysRequired: 10,
-      bestMonths: "April to June & September to October",
-    },
-    spain: {
-      attractions: [
-        "Sagrada Família",
-        "Alhambra",
-        "Park Güell",
-        "Prado Museum",
-        "Ibiza Beaches",
-        "Seville Cathedral",
-      ],
-      daysRequired: 10,
-      bestMonths: "April to June & September to October",
-    },
-    "united states": {
-      attractions: [
-        "Grand Canyon",
-        "Statue of Liberty",
-        "Yellowstone National Park",
-        "Walt Disney World",
-        "Golden Gate Bridge",
-        "Times Square",
-      ],
-      daysRequired: 14,
-      bestMonths: "April to June & September to November",
-    },
-    china: {
-      attractions: [
-        "Great Wall of China",
-        "Forbidden City",
-        "Terracotta Army",
-        "The Bund Shanghai",
-        "Li River",
-        "Potala Palace",
-      ],
-      daysRequired: 12,
-      bestMonths: "September to October & April to May",
-    },
-    italy: {
-      attractions: [
-        "Colosseum",
-        "Venice Canals",
-        "Florence Duomo",
-        "Amalfi Coast",
-        "Leaning Tower of Pisa",
-        "Vatican Museums",
-      ],
-      daysRequired: 12,
-      bestMonths: "April to June & September to October",
-    },
-    turkey: {
-      attractions: [
-        "Hagia Sophia",
-        "Cappadocia Fairy Chimneys",
-        "Pamukkale Thermal Pools",
-        "Ephesus Ruins",
-        "Grand Bazaar",
-        "Blue Mosque",
-      ],
-      daysRequired: 10,
-      bestMonths: "April to May & September to October",
-    },
-    mexico: {
-      attractions: [
-        "Chichén Itzá",
-        "Tulum Ruins",
-        "Cancún Beaches",
-        "Mexico City Zócalo",
-        "Teotihuacan Pyramids",
-        "Cozumel",
-      ],
-      daysRequired: 10,
-      bestMonths: "December to April",
-    },
-    thailand: {
-      attractions: [
-        "Grand Palace",
-        "Phi Phi Islands",
-        "Wat Arun",
-        "Chiang Mai Old City",
-        "Railay Beach",
-        "Ayutthaya Historical Park",
-      ],
-      daysRequired: 10,
-      bestMonths: "November to February",
-    },
-    germany: {
-      attractions: [
-        "Brandenburg Gate",
-        "Neuschwanstein Castle",
-        "Cologne Cathedral",
-        "Berlin Wall Memorial",
-        "Black Forest",
-        "Marienplatz",
-      ],
-      daysRequired: 10,
-      bestMonths: "May to September",
-    },
-    "united kingdom": {
-      attractions: [
-        "Stonehenge",
-        "Tower of London",
-        "British Museum",
-        "Edinburgh Castle",
-        "The Roman Baths",
-        "Giant's Causeway",
-      ],
-      daysRequired: 10,
-      bestMonths: "May to September",
-    },
-    japan: {
-      attractions: [
-        "Mount Fuji",
-        "Fushimi Inari-taisha",
-        "Tokyo Skytree",
-        "Kinkaku-ji (Golden Pavilion)",
-        "Arashiyama Bamboo Grove",
-        "Itsukushima Shrine",
-      ],
-      daysRequired: 12,
-      bestMonths: "March to May & September to November",
-    },
-    austria: {
-      attractions: [
-        "Schönbrunn Palace",
-        "Hallstatt Village",
-        "Salzburg Old Town",
-        "St. Stephen's Cathedral",
-        "Grossglockner High Alpine Road",
-        "The Hofburg",
-      ],
-      daysRequired: 7,
-      bestMonths: "April to May & September to October",
-    },
-    greece: {
-      attractions: [
-        "Acropolis of Athens",
-        "Santorini Caldera",
-        "Parthenon",
-        "Mykonos Windmills",
-        "Meteora Monasteries",
-        "Delphi Ruins",
-      ],
-      daysRequired: 9,
-      bestMonths: "April to June & September to October",
-    },
-    "united arab emirates": {
-      attractions: [
-        "Burj Khalifa",
-        "Sheikh Zayed Grand Mosque",
-        "Louvre Abu Dhabi",
-        "Palm Jumeirah",
-        "The Dubai Mall",
-        "Desert Safari",
-      ],
-      daysRequired: 7,
-      bestMonths: "November to March",
-    },
-    malaysia: {
-      attractions: [
-        "Petronas Twin Towers",
-        "Batu Caves",
-        "Langkawi Sky Bridge",
-        "Mount Kinabalu",
-        "Genting Highlands",
-        "Malacca Historic City",
-      ],
-      daysRequired: 8,
-      bestMonths: "December to February & June to August",
-    },
-  },
-};
 
 const searchDestInput = document.querySelector("#searchDest");
 const placeInputDropdown = document.querySelector("#placeInputDropdown");
@@ -1088,45 +177,127 @@ countrySearchForm.addEventListener("submit", (e) => {
 });
 
 async function fetchHeroImage(userInput, query, flag) {
+  let imgUrl = "";
+  const pexelsApiKey = `4AIcJR6m173iJroqjAQ77ZzNZN2pHItM7JBkPPVMnkXyKUCO0tdnN178`;
+
+  // Added a space so it's "Mumbai landscape" instead of "Mumbailandscape"
+  const searchQuery = userInput + " " + query;
+  const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=1`;
+
   try {
-    let imgUrl = "";
-    const unsplashAccessKey = `xgRTMipOAyfiO7NOzFLTsKlA5pgfO3rRRVxv4FRoi90`;
+    const imgRes = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: pexelsApiKey,
+      },
+    });
 
-    destinationContainer.classList.add("visible");
+    const imageJSONData = await imgRes.json();
 
-    const destinationHeroImage = await fetch(
-      `https://api.unsplash.com/search/photos?query=${userInput}+${query}&orientation=landscape&per_page=5&client_id=${unsplashAccessKey}`,
-    );
+    // Check for .photos, not .results
+    if (imageJSONData.photos && imageJSONData.photos.length > 0) {
+      destinationContainer.classList.add("visible");
 
-    const destinationHeroImageJsonData = await destinationHeroImage.json();
-
-    console.log(destinationHeroImageJsonData);
-
-    let jsonDataImageResult = destinationHeroImageJsonData.results;
-    let selectedIndex = 0;
-
-    for (let i = 1; i < jsonDataImageResult.length; i++) {
-      if (
-        jsonDataImageResult[i].likes > jsonDataImageResult[selectedIndex].likes
-      ) {
-        selectedIndex = i;
-      }
-    }
-
-    if (destinationHeroImageJsonData.results.length) {
       const backgroundHeroImgEle = document.querySelector(
         "#dest-result-info-wrapper",
       );
-      imgUrl = destinationHeroImageJsonData.results[selectedIndex].urls.regular;
+
+      // Get the image URL
+      imgUrl = imageJSONData.photos[0].src.landscape;
 
       if (flag === 1) {
         backgroundHeroImgEle.style.backgroundImage = `url(${imgUrl})`;
       }
-      console.log(imgUrl);
+      console.log("Success:", imgUrl);
     }
     return imgUrl;
   } catch (err) {
-    return "error";
+    console.log("Error fetching image:", err);
+    // Your fallback link
+    return `https://images.pexels.com/photos/5556450/pexels-photo-5556450.jpeg`;
+  }
+}
+
+async function getTopAttractionsFallback(lat, lon, type) {
+  // This query asks Wikipedia for 10 pages near these coordinates that are "popular"
+  const url = `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${lat}|${lon}&gsradius=10000&gslimit=10&format=json&origin=*`;
+
+  try {
+    if (type === "city" || type === "state") {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      // We map the titles of the Wikipedia pages to your attractions array
+      // We filter out the State name itself if it appears
+      const attractions = data.query.geosearch
+        .map((place) => place.title)
+        .slice(0, 7); // Get top 6-7
+
+      console.log(attractions);
+
+      return attractions;
+    } else {
+      console.log("here...");
+      let attractions = [];
+
+      const countryAttractionFromWikipedia = await fetch(
+        `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=tourist%20places%20in%20${type}%20landmark&format=json&origin=*&srlimit=20`,
+      );
+      const countryAttractionFromWikipediaJsonData =
+        await countryAttractionFromWikipedia.json();
+
+      const attractionSearchObjArr =
+        countryAttractionFromWikipediaJsonData.query.search;
+
+      attractionSearchObjArr.forEach((obj) => {
+        attractions.push(obj.title);
+      });
+
+      console.log(attractions);
+
+      attractions.forEach((title, indx) => {
+        title = title.toLowerCase();
+        attractions[indx] = title;
+      });
+
+      const wordsToRemove = [
+        "list",
+        "tourism",
+        "attractions",
+        "attraction",
+        "in",
+        "of",
+        "tourist",
+      ];
+
+      attractions.forEach((title, indx) => {
+        for (let i = 0; i < wordsToRemove.length; i++) {
+          title = title.replace(wordsToRemove[i], "");
+          attractions[indx] = title;
+        }
+      });
+
+      attractions.forEach((title, indx) => {
+        title = title.trim();
+        attractions[indx] = title;
+      });
+
+      attractions = attractions.filter((title) => title.length > 1);
+
+      attractions = attractions.slice(7, attractions.length);
+
+      console.log(attractions);
+      return attractions;
+    }
+  } catch (error) {
+    return [
+      "Main Landmarks",
+      "Local Markets",
+      "Historical Sites",
+      "Garden",
+      "Dam",
+      "bridge",
+    ]; // Safe fallback
   }
 }
 
@@ -1143,7 +314,6 @@ async function fetchCityDetails(userInput) {
     const cityLatitude = cityJSONData[0].lat;
     const cityLongitude = cityJSONData[0].lon;
     const cityName = cityJSONData[0].name;
-    console.log(cityName);
     const countryCode = cityJSONData[0].country;
     const state = cityJSONData[0].state;
 
@@ -1163,61 +333,58 @@ async function fetchCityDetails(userInput) {
     const weatherDescription = cityWeatherDataJson.weather[0].description;
     const weatherIcon = cityWeatherDataJson.weather[0].icon;
 
+    let flag = 0;
+    let daysRequired;
+    let bestTimeToVisit;
+
+    let attractionsForIntinerary;
+    // console.log(cityJSONData);
+
     const cityNamesinFeturedList = Object.keys(featuredDestinations.cities);
-    console.log(cityNamesinFeturedList);
 
     let top6PlacesArr = [];
-
-    console.log(
-      featuredDestinations.cities[`${userInput.toLowerCase()}`].attractions,
-    );
 
     if (cityNamesinFeturedList.includes(userInput.trim())) {
       top6PlacesArr = featuredDestinations.cities[
         `${userInput.toLowerCase()}`
       ].attractions.slice(0, 6);
+      flag = 0;
+      daysRequired =
+        featuredDestinations.cities[`${userInput.toLowerCase()}`].daysRequired;
+      bestTimeToVisit =
+        featuredDestinations.cities[`${userInput.toLowerCase()}`].bestMonths;
+      attractionsForIntinerary =
+        featuredDestinations.cities[`${userInput.toLowerCase()}`].attractions;
     } else {
-      top6Places = await fetch(
-        `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=Places%20of%20interest%20in%20${userInput}%20tourist%20landmarks&srlimit=6&format=json&origin=*`,
-      );
-
-      top6PlacesJsonData = await top6Places.json();
-      let searchArray = top6PlacesJsonData.query.search;
-      searchArray.forEach((obj) => {
-        top6PlacesArr.push(obj.title);
-      });
+      try {
+        top6PlacesArr = await getTopAttractionsFallback(
+          cityLatitude,
+          cityLongitude,
+          "city",
+        );
+        flag = 1;
+        daysRequired = 3;
+        bestTimeToVisit = "October to March";
+        attractionsForIntinerary = top6PlacesArr;
+      } catch (err) {
+        console.log(err);
+      }
     }
 
-    const workAroundList = [
-      "garden",
-      "hostorical",
-      "temple",
-      "nature",
-      "market",
-      "museum",
-      "mountain",
-      "dam",
-    ];
+    console.log(top6PlacesArr);
 
     const top6TouristAttractionCards = document.querySelectorAll(".dest-point");
 
-    let cnt = 0;
     console.log(top6TouristAttractionCards);
     let imgUrl;
 
     for (let i = 0; i < 6; i++) {
-      imgUrl = await fetchHeroImage(top6PlacesArr[i], "landscape", 0);
-      while (!imgUrl) {
-        imgUrl = await fetchHeroImage(
-          `${userInput} ${workAroundList[cnt]}`,
-          "",
-          0,
-        );
-        cnt += 1;
-        if (cnt === workAroundList.length) {
-          break;
-        }
+      if (flag === 0) {
+        imgUrl = await fetchHeroImage(top6PlacesArr[i], "", 0);
+      } else {
+        imgUrl = await fetchHeroImage(top6PlacesArr[i], `${userInput}+city`, 0);
       }
+
       if (imgUrl === "error") {
         top6TouristAttractionCards[i].innerHTML = `
       <h4>${top6PlacesArr[i]}</h4>
@@ -1231,10 +398,25 @@ async function fetchCityDetails(userInput) {
       }
     }
 
+    const viewLocationButtons = document.querySelectorAll(
+      "#dest-result-container .loc-btn",
+    );
+
+    console.log(viewLocationButtons);
+
+    viewLocationButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const placeName = btn.getAttribute("data-place");
+        const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName)}`;
+        window.open(mapLink, "_blank");
+      });
+    });
+
     if (cityName) {
       const destinationInfoDivEle = document.querySelector("#dest-result-info");
 
       destinationInfoDivEle.innerHTML = `
+      
     <h2>City: ${cityName}</h2>
     <p>${state}, ${countryName}</p>
     <p>Temperature: <strong>${temperature}&degC</strong></p>
@@ -1247,29 +429,553 @@ async function fetchCityDetails(userInput) {
     } else {
       result = "error";
     }
-    const viewLocationButtons = document.querySelectorAll(
-      "#dest-result-container .loc-btn",
-    );
 
-    console.log(viewLocationButtons);
-
-    viewLocationButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const placeName = btn.getAttribute("data-place");
-        console.log("attraction card button data", placeName);
-        const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName)}`;
-        window.open(mapLink, "_blank");
-      });
-    });
+    const cityObjData = {
+      name: cityName,
+      country: countryName,
+      category: "city",
+      daysReq: daysRequired,
+      timeToVisit: bestTimeToVisit,
+      attractionsData: attractionsForIntinerary,
+      searched: true,
+    };
 
     if (cityName) {
-      return result;
+      return cityObjData;
+    }
+  } catch (err) {
+    return `Error: ${err}`;
+  }
+}
+
+async function fetchStateDetails(userInput) {
+  const API_Key = `a4f414fbeea655f3a7cfa0563d6521d0`;
+
+  let flag = 0;
+  try {
+    userInput = userInput.toLowerCase();
+
+    let stateDetails;
+    let attractionList;
+    let daysRequired;
+    let bestMonths;
+
+    const statesKeys = Object.keys(featuredDestinations.states);
+
+    const url = `http://api.openweathermap.org/geo/1.0/direct?q=${userInput}&limit=1&appid=${API_Key}`;
+
+    const stateResponse = await fetch(url);
+    const stateJSONData = await stateResponse.json();
+    const stateLatitude = stateJSONData[0].lat;
+    const stateLongitude = stateJSONData[0].lon;
+    const countryCode = stateJSONData[0].country;
+
+    const countryResponse = await fetch(
+      `https://restcountries.com/v3.1/alpha/${countryCode}`,
+    );
+
+    const countryJSON = await countryResponse.json();
+    const countryName = countryJSON[0].name.common;
+
+    if (statesKeys.includes(userInput)) {
+      stateDetails = featuredDestinations.states[`${userInput}`];
+      attractionList = stateDetails.attractions;
+      daysRequired = stateDetails.daysRequired;
+      bestMonths = stateDetails.bestMonths;
+      flag = 0;
+    } else {
+      flag = 1;
+      attractionList = await getTopAttractionsFallback(
+        stateLatitude,
+        stateLongitude,
+        "state",
+      );
+      daysRequired = 7;
+      bestMonths = "October to March";
+    }
+
+    if (stateJSONData.length) {
+      const destinationInfoDivEle = document.querySelector("#dest-result-info");
+
+      destinationInfoDivEle.innerHTML = `
+      
+          <h2>State: ${userInput[0].toUpperCase() + userInput.slice(1, userInput.length).toLowerCase()}</h2>
+          <p>${countryName}</p>
+          <p>Best Months to visit: ${bestMonths}</p>
+          <p>Days Required: ${daysRequired}</p>
+          <button id="viewItinerary">View Full Itinerary</button>
+          `;
+
+      const top6TouristAttractionCards =
+        document.querySelectorAll(".dest-point");
+
+      console.log(top6TouristAttractionCards);
+      let imgUrl;
+
+      for (let i = 0; i < 6; i++) {
+        if (flag === 0) {
+          imgUrl = await fetchHeroImage(attractionList[i], "", 0);
+        } else {
+          imgUrl = await fetchHeroImage(attractionList[i], ` ${userInput}`, 0);
+        }
+
+        if (imgUrl === "error") {
+          top6TouristAttractionCards[i].innerHTML = `
+      <h4>${attractionList[i]}</h4>
+      `;
+        } else {
+          top6TouristAttractionCards[i].innerHTML = `
+        <img src="${imgUrl}" alt="${attractionList[i]}"/>
+        <h4>${attractionList[i]}</h4>
+        <button class="loc-btn" data-place="${attractionList[i]}"><img src="assets/location_icon.png" alt="location icon" class="locImg" />View Map</button>
+        `;
+        }
+      }
+
+      const viewLocationButtons = document.querySelectorAll(
+        "#dest-result-container .loc-btn",
+      );
+
+      console.log(viewLocationButtons);
+
+      viewLocationButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const placeName = btn.getAttribute("data-place");
+          const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName)}`;
+          window.open(mapLink, "_blank");
+        });
+      });
+
+      const stateObjData = {
+        name: userInput,
+        country: countryName,
+        category: "state",
+        daysReq: daysRequired,
+        timeToVisit: bestMonths,
+        attractionsData: attractionList,
+        searched: true,
+      };
+
+      return stateObjData;
+    }
+  } catch (err) {
+    return `Error: ${err}`;
+  }
+}
+
+async function fetchCountryDetails(userInput) {
+  userInput = userInput.toLowerCase();
+
+  const countryNamesMapping = new Map();
+  let countryAttractions;
+
+  countryNamesMapping.set("us", "United States");
+  countryNamesMapping.set("usa", "United States");
+  countryNamesMapping.set("uk", "United Kingdom");
+  countryNamesMapping.set("uae", "United Arab Emirates");
+  countryNamesMapping.set("nz", "New Zealand");
+
+  const countryShortcuts = [...countryNamesMapping.keys()];
+
+  try {
+    let countryRes = await fetch(
+      `https://restcountries.com/v3.1/name/${userInput}?fullText=true`,
+    );
+    let countryData = await countryRes.json();
+
+    if (!countryData.length && countryShortcuts.includes(userInput)) {
+      userInput = countryNamesMapping.get(userInput);
+      countryRes = await fetch(
+        `https://restcountries.com/v3.1/name/${userInput}?fullText=true`,
+      );
+      countryData = await countryRes.json();
+    } else if (!countryData.length && !countryShortcuts.includes(userInput)) {
+      return "Error";
+    }
+
+    let daysReq;
+    let bestMonths;
+
+    if (countryData.length) {
+      const capitalName = countryData[0].capital[0];
+      const languages = Object.values(countryData[0].languages)
+        .slice(0, 2)
+        .join(",");
+      const currencyKey = Object.keys(countryData[0].currencies)[0].toString();
+      const currency =
+        countryData[0].currencies[currencyKey].name +
+        " - " +
+        countryData[0].currencies[currencyKey].symbol;
+
+      const destinationInfoDivEle = document.querySelector("#dest-result-info");
+
+      destinationInfoDivEle.innerHTML = `
+            
+            <h2>Country: ${userInput[0].toUpperCase() + userInput.slice(1, userInput.length).toLowerCase()}</h2>
+            <p>Capital: ${capitalName}</p>
+            <p>Currency Used: ${currency}</p>
+            <p>Languages Spoken: ${languages}</p>
+            <button id="viewItinerary">View Full Itinerary</button>
+            `;
+
+      const featuredCountryNames = Object.keys(featuredDestinations.countries);
+
+      if (featuredCountryNames.includes(userInput)) {
+        countryAttractions =
+          featuredDestinations.countries[userInput].attractions;
+        daysReq = featuredDestinations.countries[userInput].daysRequired;
+        bestMonths = featuredDestinations.countries[userInput].bestMonths;
+      } else {
+        countryAttractions = await getTopAttractionsFallback(0, 0, userInput);
+        countryAttractions.forEach((attrName, indx) => {
+          attrName =
+            attrName[0].toUpperCase() +
+            attrName.slice(1, attrName.length).toLowerCase();
+          countryAttractions[indx] = attrName;
+        });
+        daysReq = 7;
+        bestMonths = "April to June & September to November";
+      }
+
+      const top6TouristAttractionCards =
+        document.querySelectorAll(".dest-point");
+
+      console.log(top6TouristAttractionCards);
+      let imgUrl;
+
+      for (let i = 0; i < 6; i++) {
+        imgUrl = await fetchHeroImage(countryAttractions[i], "", 0);
+
+        if (imgUrl === "error") {
+          top6TouristAttractionCards[i].innerHTML = `
+      <h4>${countryAttractions[i]}</h4>
+      `;
+        } else {
+          top6TouristAttractionCards[i].innerHTML = `
+        <img src="${imgUrl}" alt="${countryAttractions[i]}"/>
+        <h4>${countryAttractions[i]}</h4>
+        <button class="loc-btn" data-place="${countryAttractions[i]}"><img src="assets/location_icon.png" alt="location icon" class="locImg" />View Map</button>
+        `;
+        }
+      }
+
+      const viewLocationButtons = document.querySelectorAll(
+        "#dest-result-container .loc-btn",
+      );
+
+      console.log(viewLocationButtons);
+
+      const countryObjData = {
+        name: userInput,
+        country: userInput,
+        category: "country",
+        daysReq: daysReq,
+        timeToVisit: bestMonths,
+        attractionsData: countryAttractions,
+        searched: true,
+      };
+
+      viewLocationButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const placeName = btn.getAttribute("data-place");
+          const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName)}`;
+          window.open(mapLink, "_blank");
+        });
+      });
+
+      return countryObjData;
+    } else {
+      return "Error";
     }
   } catch (err) {
     console.log(err);
-    return err;
+    return `Error: ${err}`;
   }
 }
+
+const fallbackFacts = {
+  nature: [
+    "A breathtaking escape into nature, offering panoramic views and a serene atmosphere perfect for photography and relaxation.",
+    "Known for its stunning natural landscape, this spot provides a refreshing break with its lush scenery and peaceful vibes.",
+    "A hidden gem for nature lovers, where the beauty of the landscape creates a perfect backdrop for unforgettable memories.",
+  ],
+  architecture: [
+    "A masterpiece of design and engineering, showcasing intricate details and grand structures that stand as a testament to brilliant craftsmanship.",
+    "A visual treat for architecture enthusiasts, this location features stunning structural details that blend beauty with historical grandeur.",
+    "Admire the majestic scale and artistic details of this iconic structure, reflecting a rich tradition of design and excellence.",
+  ],
+  heritage: [
+    "A site of immense cultural significance, preserving the stories and traditions of the past for modern-day explorers.",
+    "Steeped in history and heritage, this landmark offers a deep dive into the cultural soul and legendary legacy of the region.",
+    "A protected treasure that tells the story of generations past through its preserved monuments and timeless cultural importance.",
+  ],
+  default:
+    "An iconic destination offering a unique blend of beauty and discovery. A must-visit spot to experience the true essence of the city.",
+};
+
+function getSmartFallback(placeName) {
+  const name = placeName.toLowerCase();
+
+  if (
+    name.includes("beach") ||
+    name.includes("lake") ||
+    name.includes("park") ||
+    name.includes("valley") ||
+    name.includes("view")
+  ) {
+    return fallbackFacts.nature[Math.floor(Math.random() * 3)];
+  }
+  if (
+    name.includes("fort") ||
+    name.includes("palace") ||
+    name.includes("temple") ||
+    name.includes("cathedral") ||
+    name.includes("castle")
+  ) {
+    return fallbackFacts.architecture[Math.floor(Math.random() * 3)];
+  }
+  if (
+    name.includes("museum") ||
+    name.includes("memorial") ||
+    name.includes("heritage") ||
+    name.includes("")
+  ) {
+    return fallbackFacts.heritage[Math.floor(Math.random() * 3)];
+  }
+  return fallbackFacts.default;
+}
+
+async function getFunFacts(attractionList) {
+  try {
+    const factsFetchedArr = attractionList.map(async (place) => {
+      const response = await fetch(
+        `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&titles=${encodeURIComponent(place)}&format=json&origin=*`,
+      );
+      const data = await response.json();
+
+      // Wikipedia returns data in a weird format: query.pages[pageId].extract
+      const pages = data.query.pages;
+      const pageId = Object.keys(pages)[0];
+      let extract = pages[pageId].extract;
+      if (extract) {
+        if (extract.length > 50) {
+          extractArr = extract.split(".");
+          extract = extractArr[0] + ".";
+          if (extractArr[1]) {
+            extract += extractArr[1] + ".";
+          }
+          if (extract > 50) {
+            extract = extractArr[0] + ".";
+          }
+        } else {
+          extract = extract;
+        }
+      } else {
+        extract = getSmartFallback(place);
+      }
+      return [place, extract];
+    });
+
+    const resultFactsArr = await Promise.all(factsFetchedArr);
+    const finalPlaceFactsMap = new Map(resultFactsArr);
+    return finalPlaceFactsMap;
+  } catch (err) {
+    console.log("Error: ", err);
+  }
+}
+
+async function showItinerary(tripData, fav, source) {
+  const homePage = document.getElementById("home");
+  const backBtn = document.getElementById("back-btn");
+  const itinerary = document.getElementById("itinerary");
+  const navBar = document.querySelector(".navbar");
+  const placesListEle = document.getElementById("placesList");
+  const verticalLine = document.getElementById("vertical-line");
+  const timeToVisitEle = document.querySelector("#timeToVisit");
+  const tripDaysEle = document.getElementById("tripDays");
+  const placeName = document.getElementById("placeName");
+  const loadingSpinner = document.getElementById("loading-itinerary");
+  const explore = document.getElementById("explore");
+  const favImage = document.querySelector("#favorites-icon > img");
+  const favorites = document.getElementById("favorites");
+
+  currentViewedPlace = tripData;
+
+  // Destructure properties including your new 'searched' flag
+  const {
+    name,
+    country,
+    category,
+    daysReq,
+    timeToVisit,
+    attractionsData,
+    searched, // Your new property
+  } = { ...tripData };
+
+  const favList = JSON.parse(localStorage.getItem("favorites"));
+
+  const addedToFav = favList.some((favObj) => favObj.name === name);
+
+  if (addedToFav) {
+    favImage.src = "assets/filled-heart.png";
+    favImage.alt = `${name} added to favorites`;
+    favoriteIcon.classList.add("added");
+  }
+
+  // UI Initialization
+  navBar.classList.add("hidden");
+  explore.classList.add("hidden");
+  favorites.classList.add("hidden");
+  itinerary.classList.remove("hidden");
+  loadingSpinner.classList.add("visible");
+  placesListEle.classList.add("hidden");
+  verticalLine.classList.add("hidden");
+
+  // Handle Favorites Heart Icon
+  if (fav === true) {
+    favImage.src = "assets/filled-heart.png";
+    favImage.alt = "Added to favorites";
+  } else {
+    favImage.src = "assets/hollow-heart.png";
+    favImage.alt = "Add to favorites";
+  }
+
+  // Dynamic Header
+  timeToVisitEle.textContent = `Best time to Visit: ${timeToVisit}`;
+  tripDaysEle.innerHTML = `${daysReq}-Day Trip to`;
+  placeName.innerHTML = country
+    ? `${name.toUpperCase()}, ${country}`
+    : name.toUpperCase();
+
+  // Back Button
+  backBtn.onclick = () => {
+    itinerary.classList.add("hidden");
+    navBar.classList.remove("hidden");
+    if (source === "home") {
+      homePage.classList.remove("hidden");
+      homePage.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (source === "explore") {
+      explore.classList.remove("hidden");
+      explore.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      favorites.classList.remove("hidden");
+      favorites.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  placesListEle.innerHTML = "";
+  const placeFactMapping = await getFunFacts(attractionsData);
+
+  let noOfCards;
+  let spotsPerCard;
+
+  if (searched) {
+    // Your Original Logic: 3 spots per day, dynamic card count
+    spotsPerCard = 3;
+    noOfCards = Math.ceil(attractionsData.length / 3);
+  } else {
+    // Explore Logic: Fixed daysReq, balanced distribution
+    noOfCards = daysReq;
+    spotsPerCard = Math.ceil(attractionsData.length / daysReq);
+  }
+
+  // Main Loop
+  for (let i = 0; i < noOfCards; i++) {
+    const attractionPointsPerCard = attractionsData.slice(
+      i * spotsPerCard,
+      i * spotsPerCard + spotsPerCard,
+    );
+
+    // Fetch Images
+    const fetchedImages = attractionPointsPerCard.map(async (place) => {
+      return await fetchHeroImage(place, `${name} ${category} landmark`, 0);
+    });
+
+    const urls = [...(await Promise.all(fetchedImages))];
+    let cardInnerHTML = "";
+
+    if (attractionPointsPerCard.length > 0) {
+      attractionPointsPerCard.forEach((point, indx) => {
+        const imgUrl = urls[indx];
+        const fact = placeFactMapping.get(point);
+
+        cardInnerHTML += `
+                    <div class="point-container">
+                        <img src="${imgUrl}" alt="${point}" class="place-image"/>
+                        <div class="name-fact-container">
+                            <h2>✦ ${point}</h2>
+                            <button class="locationBtn" data-val="${point}">
+                                <img src="assets/location_icon.png" alt="loc"/>
+                            </button>
+                            <p>💡${fact || "A must-visit spot to experience the local charm."}</p>
+                        </div>
+                    </div>
+                `;
+      });
+    } else if (!searched) {
+      // Buffer/Relaxing day for Explore items with few attractions but many days
+      cardInnerHTML = `
+                <div class="point-container">
+                    <img src="assets/extra_day.png" alt="Relaxing" class="place-image"/>
+                    <div class="name-fact-container">
+                        <h2>Relax & Explore Local</h2>
+                        <p>A flexible day dedicated to local markets, trying street food, or simply soaking in the vibes of ${name}.</p>
+                    </div>
+                </div>
+            `;
+    }
+
+    // Render Day Wrapper
+    if (cardInnerHTML !== "") {
+      placesListEle.innerHTML += `
+                <div class="dayWrapper">
+                    <div class="dayVisit">
+                        <h2>Day ${i + 1}</h2>
+                        ${cardInnerHTML}
+                    </div>
+                    <div class="dayNumber">
+                        <p class="dayText">Day</p>
+                        <p class="dayNum">${i + 1}</p>
+                    </div>
+                </div>
+            `;
+    }
+  }
+
+  // Extra Buffer Day Logic (Only for Search results if needed)
+  if (searched && noOfCards < daysReq) {
+    placesListEle.innerHTML += `
+            <div class="dayWrapper">
+                <div class="dayVisit">
+                    <div class="point-container">
+                        <img src="assets/extra_day.png" alt="relaxing"/>
+                        <div class="name-fact-container">
+                            <h2 id="bufferDay">Flexible Buffer Day</h2>
+                            <p>Dedicated to local shopping🛍️, relaxing😌, or exploring hidden gems at your own pace.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+  }
+
+  // Cleanup UI
+  loadingSpinner.classList.remove("visible");
+  placesListEle.classList.remove("hidden");
+  verticalLine.classList.remove("hidden");
+
+  // Location Button Events
+  document.querySelectorAll(".locationBtn").forEach((btn) => {
+    btn.onclick = () => {
+      const pointName = btn.getAttribute("data-val");
+      window.open(
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pointName + " " + name)}`,
+        "_blank",
+      );
+    };
+  });
+}
+
 const destinationContainer = document.querySelector("#dest-result-container");
 
 async function fetchDestinationDetails(userInput, destType) {
@@ -1296,27 +1002,65 @@ async function fetchDestinationDetails(userInput, destType) {
   let query;
   switch (destType) {
     case "city":
-      query = "city+cover+photo";
-      const status = await fetchCityDetails(userInput);
+      query = "city";
+      const cityObj = await fetchCityDetails(userInput);
+      let cityObjKeys = Object.keys(cityObj);
 
-      if (status === "success") {
-        console.log("Data fetched successfully");
-      } else if (status === "error") {
-        console.log("Error fetching data");
-      } else {
-        console.log("error in catch");
-      }
+      const heroBgImage = await fetchHeroImage(userInput, query, 1);
 
-      const res = await fetchHeroImage(userInput, query, 1);
-      if (res === "error") {
+      if (heroBgImage.includes("Error")) {
         console.log("error fetching image");
       }
 
-      if (status === "success") {
+      if (cityObjKeys.length !== 0) {
         errorEle.classList.remove("visible");
         searchResultEle.classList.add("visible");
         loadingSpinner.classList.remove("visible");
-      } else if (status === "error") {
+        const viewItineraryBtn = document.getElementById("viewItinerary");
+        viewItineraryBtn.addEventListener("click", () => {
+          showItinerary(cityObj, false, "home");
+
+          const heroSectionEle = document.getElementById("home");
+          heroSectionEle.classList.add("hidden");
+          const iteneraryEle = document.getElementById("itinerary");
+          iteneraryEle.classList.remove("hidden");
+          iteneraryEle.scrollIntoView((behavior = "smooth"), (block = "start"));
+        });
+      } else {
+        searchResultEle.classList.remove("visible");
+        errorEle.classList.add("visible");
+        loadingSpinner.classList.remove("visible");
+        errorEle.innerHTML = `
+        <img src="https://i.pinimg.com/1200x/c4/a3/1a/c4a31a9542e390358f1bf62e72f9625a.jpg" alt="error occurred"/>
+        <p>Error fetching data</p>
+        `;
+      }
+      break;
+
+    case "state":
+      query = "nature+landscape";
+      const stateResObj = await fetchStateDetails(userInput);
+      console.log(stateResObj);
+
+      const res1 = await fetchHeroImage(userInput, query, 1);
+      if (res1.includes("Error")) {
+        console.log("error fetching image");
+      }
+
+      if (Object.keys(stateResObj).length) {
+        errorEle.classList.remove("visible");
+        searchResultEle.classList.add("visible");
+        loadingSpinner.classList.remove("visible");
+        const viewItineraryBtn = document.getElementById("viewItinerary");
+        viewItineraryBtn.addEventListener("click", () => {
+          showItinerary(stateResObj, false, "home");
+          const heroSectionEle = document.getElementById("home");
+          heroSectionEle.classList.add("hidden");
+          const iteneraryEle = document.getElementById("itinerary");
+          iteneraryEle.classList.remove("hidden");
+          iteneraryEle.scrollIntoView((behavior = "smooth"), (block = "start"));
+        });
+      } else if (status1.includes("Error")) {
         searchResultEle.classList.remove("visible");
         errorEle.classList.add("visible");
         loadingSpinner.classList.remove("visible");
@@ -1335,14 +1079,87 @@ async function fetchDestinationDetails(userInput, destType) {
       }
       break;
 
-    case "state":
-      query = "nature+landscape";
-      fetchHeroImage(userInput, query, 1);
-      break;
-
     case "country":
       query = "landmark+iconic";
-      fetchHeroImage(userInput, query, 1);
+      const countryResObj = await fetchCountryDetails(userInput);
+      console.log(countryResObj);
+
+      const res2 = await fetchHeroImage(userInput, query, 1);
+      if (res2.includes("Error")) {
+        console.log("error fetching image");
+      }
+      if (Object.keys(countryResObj).length) {
+        errorEle.classList.remove("visible");
+        searchResultEle.classList.add("visible");
+        loadingSpinner.classList.remove("visible");
+        const viewItineraryBtn = document.getElementById("viewItinerary");
+        viewItineraryBtn.addEventListener("click", () => {
+          showItinerary(countryResObj, false, "home");
+
+          const heroSectionEle = document.getElementById("home");
+          heroSectionEle.classList.add("hidden");
+          const iteneraryEle = document.getElementById("itinerary");
+          iteneraryEle.classList.remove("hidden");
+          iteneraryEle.scrollIntoView((behavior = "smooth"), (block = "start"));
+        });
+      } else if (countryResObj.includes("Error")) {
+        searchResultEle.classList.remove("visible");
+        errorEle.classList.add("visible");
+        loadingSpinner.classList.remove("visible");
+        errorEle.innerHTML = `
+        <img src="https://i.pinimg.com/1200x/c4/a3/1a/c4a31a9542e390358f1bf62e72f9625a.jpg" alt="error in input"/>
+        <p>Please check your input and try again!</p>
+        `;
+      } else {
+        searchResultEle.classList.remove("visible");
+        errorEle.classList.add("visible");
+        loadingSpinner.classList.remove("visible");
+        errorEle.innerHTML = `
+        <img src="https://i.pinimg.com/1200x/c4/a3/1a/c4a31a9542e390358f1bf62e72f9625a.jpg" alt="error in input"/>
+        <p>Error fetching data</p>
+        `;
+      }
       break;
   }
 }
+
+const favoriteIcon = document.getElementById("favorites-icon");
+
+const toastMsgFav = document.getElementById("toast-favorite");
+
+const favImage = document.querySelector("#favorites-icon > img");
+
+favoriteIcon.addEventListener("click", () => {
+  let favsArr = JSON.parse(localStorage.getItem("favorites")) || [];
+
+  const { name, country, category, daysReq, timeToVisit, attractionsData } = {
+    ...currentViewedPlace,
+  };
+
+  if (!currentViewedPlace) {
+    return;
+  }
+  if (favoriteIcon.classList.contains("added")) {
+    favoriteIcon.classList.remove("added");
+    favImage.src = "assets/hollow-heart.png";
+    favImage.alt = "Add to favorites";
+    toastMsgFav.innerText = "Removed from favorites";
+    toastMsgFav.classList.add("active");
+    setTimeout(() => {
+      toastMsgFav.classList.remove("active");
+    }, 2400);
+    const finalFavsArr = favsArr.filter((placeObj) => placeObj.name !== name);
+    localStorage.setItem("favorites", JSON.stringify(finalFavsArr));
+  } else {
+    favoriteIcon.classList.add("added");
+    favImage.src = "assets/filled-heart.png";
+    favImage.alt = "Added to favorites";
+    toastMsgFav.innerText = "Added to favorites";
+    toastMsgFav.classList.add("active");
+    setTimeout(() => {
+      toastMsgFav.classList.remove("active");
+    }, 2400);
+    favsArr.push(currentViewedPlace);
+    localStorage.setItem("favorites", JSON.stringify(favsArr));
+  }
+});
