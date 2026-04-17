@@ -91,7 +91,7 @@ const featuredDestinations = {
         "Pataleshwar Cave Temple",
         "Osho Garden",
       ],
-      daysRequired: 2,
+      daysRequired: 3,
       bestMonths: "October to March",
     },
     ahmedabad: {
