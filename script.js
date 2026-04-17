@@ -393,7 +393,7 @@ async function fetchCityDetails(userInput) {
         top6TouristAttractionCards[i].innerHTML = `
         <img src="${imgUrl}" alt="${top6PlacesArr[i]}"/>
         <h4>${top6PlacesArr[i]}</h4>
-        <button class="loc-btn" data-place="${top6PlacesArr[i]}"><img src="assets/location_icon.png" alt="location icon" class="locImg" />View Map</button>
+        <button class="loc-btn" data-place="${top6PlacesArr[i]}"><span class="locImg"></span>View Map</button>
         `;
       }
     }
@@ -823,6 +823,10 @@ async function showItinerary(tripData, fav, source) {
     favImage.src = "assets/filled-heart.png";
     favImage.alt = `${name} added to favorites`;
     favoriteIcon.classList.add("added");
+  } else {
+    favImage.src = "assets/hollow-heart.png";
+    favImage.alt = `Add to favorites`;
+    favoriteIcon.classList.remove("added");
   }
 
   // UI Initialization
@@ -908,7 +912,7 @@ async function showItinerary(tripData, fav, source) {
                         <div class="name-fact-container">
                             <h2>✦ ${point}</h2>
                             <button class="locationBtn" data-val="${point}">
-                                <img src="assets/location_icon.png" alt="loc"/>
+                                <span class="locImgIti"></span>
                             </button>
                             <p>💡${fact || "A must-visit spot to experience the local charm."}</p>
                         </div>

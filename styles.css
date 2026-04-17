@@ -1144,15 +1144,19 @@ button:active {
   padding-block-end: 0.15rem;
 }
 
-#dest-result-container > .dest-point > button {
+#dest-result-container > .dest-point > .loc-btn {
   font-size: clamp(0.7rem, 2vw, 0.95rem);
-  padding: 0.2rem 0;
+  padding: 0.25rem 0;
   width: 100%;
   height: max-content;
   background: transparent;
   color: var(--hover-color);
   border: 1px solid var(--hover-color);
   border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 0.1rem;
+  align-items: center;
 }
 
 #dest-result-container > .dest-point > button:hover {
@@ -1161,8 +1165,45 @@ button:active {
 }
 
 button .locImg {
-  width: 0.9rem;
-  margin-inline-end: 0.5rem;
+  display: inline-block;
+  width: 18px; /* Set the size you want for the icon */
+  height: 18px;
+
+  /* The "Paint" - this is the color that will show through */
+  background-color: var(--hover-color);
+
+  /* The "Stencil" */
+  -webkit-mask-image: url("assets/location_icon.png");
+  mask-image: url("assets/location_icon.png");
+
+  /* Centering and Scaling */
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+button .locImgIti {
+  display: inline-block;
+  width: 25px; /* Set the size you want for the icon */
+  height: 25px;
+
+  /* The "Paint" - this is the color that will show through */
+  background-color: var(--hover-color);
+
+  /* The "Stencil" */
+  -webkit-mask-image: url("assets/location_icon.png");
+  mask-image: url("assets/location_icon.png");
+
+  /* Centering and Scaling */
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  mask-position: center;
 }
 
 #dest-result-info > #weatherDesc {
