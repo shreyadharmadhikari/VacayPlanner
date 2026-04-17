@@ -307,7 +307,7 @@ async function fetchCityDetails(userInput) {
   try {
     let result = "";
     userInput = userInput.toLowerCase();
-    const url = `http://api.openweathermap.org/geo/1.0/direct?q=${userInput}&limit=1&appid=${API_Key}`;
+    const url = `https://api.openweathermap.org/geo/1.0/direct?q=${userInput}&limit=1&appid=${API_Key}`;
 
     const cityResponse = await fetch(url);
     const cityJSONData = await cityResponse.json();
@@ -462,7 +462,7 @@ async function fetchStateDetails(userInput) {
 
     const statesKeys = Object.keys(featuredDestinations.states);
 
-    const url = `http://api.openweathermap.org/geo/1.0/direct?q=${userInput}&limit=1&appid=${API_Key}`;
+    const url = `https://api.openweathermap.org/geo/1.0/direct?q=${userInput}&limit=1&appid=${API_Key}`;
 
     const stateResponse = await fetch(url);
     const stateJSONData = await stateResponse.json();
@@ -813,8 +813,11 @@ async function showItinerary(tripData, fav, source) {
   } = { ...tripData };
 
   const favList = JSON.parse(localStorage.getItem("favorites"));
+  let addedToFav;
 
-  const addedToFav = favList.some((favObj) => favObj.name === name);
+  if (favList) {
+    addedToFav = favList.some((favObj) => favObj.name === name);
+  }
 
   if (addedToFav) {
     favImage.src = "assets/filled-heart.png";
