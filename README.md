@@ -6,7 +6,7 @@ VacayPlanner is a responsive frontend web application designed to help users exp
 
 ## Live Demo
 
-(Add your deployed link here)
+https://shreya-vacayplanner.netlify.app
 
 ---
 
