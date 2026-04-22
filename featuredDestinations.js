@@ -584,7 +584,7 @@ const featuredDestinations = {
         "Insadong",
         "Hangang Park",
       ],
-      daysRequired: 4,
+      daysRequired: 3,
       bestMonths: "March to May & Sept to Nov",
     },
     "kuala lumpur": {

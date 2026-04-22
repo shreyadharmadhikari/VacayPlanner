@@ -261,7 +261,7 @@ const exploreDestinations = {
     cost: "₹1,25,000",
     img: "https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=500&auto=format&fit=crop",
   },
-  newyork: {
+  "new york": {
     attractions: [
       "Times Square",
       "Central Park",
@@ -361,7 +361,7 @@ const exploreDestinations = {
     cost: "₹55,000",
     img: "https://images.unsplash.com/photo-1600520611035-84157ad4084d?w=500&auto=format&fit=crop",
   },
-  riodejaneiro: {
+  "rio de janeiro": {
     attractions: [
       "Christ the Redeemer",
       "Sugarloaf Mountain",
@@ -400,7 +400,6 @@ const exploreDestinations = {
 async function handleExploreItineraryClick(cityKey) {
   const city = exploreDestinations[cityKey];
 
-  // 1. Transform the 'Explore' object into a 'tripData' object
   const adaptedData = {
     name: cityKey,
     country: "", // You can add country to your object if you want
@@ -411,17 +410,11 @@ async function handleExploreItineraryClick(cityKey) {
     searched: false,
   };
 
-  // 2. Call your existing, powerful showItinerary function
-  // Pass 'false' for fav initially, or check if it's in your tripsInFavs array
   const isFav = tripsInFavs.some((trip) => trip.name.includes(cityKey));
 
   await showItinerary(adaptedData, isFav, "explore");
 }
 
-/**
- * 2. GALLERY RENDERER
- * Generates the 42 cards and attaches the city keys.
- */
 function renderExploreGallery() {
   const grid = document.getElementById("exploreGrid");
   if (!grid) return;
