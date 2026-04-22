@@ -738,8 +738,6 @@ async function fetchDestinationUnifiedFunc(userInput) {
 
     /******** WEATHER (ONLY CITY) ********/
     let weatherHTML = "";
-
-    let weatherHTML = "";
     let countryHTML = "";
 
     /* ---------------- CITY ---------------- */
