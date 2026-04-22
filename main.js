@@ -644,6 +644,12 @@ async function fetchDestinationUnifiedFunc(userInput) {
   try {
     userInput = userInput.trim().toLowerCase();
 
+    if (userInput === "usa") {
+      userInput = "United States";
+    } else if (userInput === "uk") {
+      userInput = "United Kingdom";
+    }
+
     /******** GEOAPIFY SEARCH ********/
     const geoRes = await fetch(
       `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(userInput)}&apiKey=${GEOAPIFY_KEY}`,
@@ -668,8 +674,9 @@ async function fetchDestinationUnifiedFunc(userInput) {
     let flag = 0;
 
     /******** FEATURED FIRST ********/
-    if (type === "postcode" && featuredDestinations.cities[userInput]) {
+    if (type === "city" && featuredDestinations.cities[userInput]) {
       const data = featuredDestinations.cities[userInput];
+      console.log("present in featured list");
       attractions = data.attractions;
       daysRequired = data.daysRequired;
       bestMonths = data.bestMonths;
@@ -739,7 +746,6 @@ async function fetchDestinationUnifiedFunc(userInput) {
     /******** WEATHER (ONLY CITY) ********/
     let weatherHTML = "";
 
-    let weatherHTML = "";
     let countryHTML = "";
 
     /* ---------------- CITY ---------------- */
@@ -809,6 +815,18 @@ async function fetchDestinationUnifiedFunc(userInput) {
 
   <button id="viewItinerary">View Full Itinerary</button>
 `;
+
+    if (type === "country") {
+      document.querySelector("#dest-result-info").innerHTML = `
+  
+  ${countryHTML}
+
+  <p>Best Time: ${bestMonths}</p>
+  <p>Days Required: ${daysRequired}</p>
+
+  <button id="viewItinerary">View Full Itinerary</button>
+`;
+    }
 
     /******** HERO IMAGE ********/
     await fetchHeroImage(userInput, type, 1);
