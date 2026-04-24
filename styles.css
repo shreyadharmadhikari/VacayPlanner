@@ -946,7 +946,7 @@ button:active {
   border-bottom: 2px solid var(--hover-color);
   animation: loadingSpinner 0.65s linear infinite forwards;
   align-self: center;
-  margin-top: 1.4rem;
+  margin-top: 1.1rem;
 }
 
 #loading-itinerary {
