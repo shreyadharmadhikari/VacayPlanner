@@ -8,6 +8,7 @@
 .explore-header {
   text-align: center;
   margin-bottom: 2.5rem; /* Reduced from 3.5rem */
+  color: rgb(60, 206, 250);
 }
 
 .explore-header h1 {
