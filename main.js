@@ -674,7 +674,7 @@ async function fetchDestinationUnifiedFunc(userInput) {
     let flag = 0;
 
     /******** FEATURED FIRST ********/
-    if (type === "city" && featuredDestinations.cities[userInput]) {
+    if (type === "postcode" && featuredDestinations.cities[userInput]) {
       const data = featuredDestinations.cities[userInput];
       console.log("present in featured list");
       attractions = data.attractions;
