@@ -478,7 +478,7 @@ async function showItinerary(tripData, fav, source) {
 
     // Fetch Images
     const fetchedImages = attractionPointsPerCard.map(async (place) => {
-      return await fetchHeroImage(place, `${name} ${category} landmark`, 0);
+      return await fetchHeroImage(place, `landscape view`, 0);
     });
 
     const urls = [...(await Promise.all(fetchedImages))];
@@ -593,28 +593,30 @@ async function fetchDestinationDetails(userInput) {
 
     currentViewedPlace = data;
 
-    await fetchHeroImage(userInput, data.category, 1);
+    const heroImage = await fetchHeroImage(userInput, "landscape", 1);
 
-    loadingSpinner.classList.remove("visible");
-    searchResultEle.classList.add("visible");
+    if (data && heroImage) {
+      loadingSpinner.classList.remove("visible");
+      searchResultEle.classList.add("visible");
 
-    const btn = document.getElementById("viewItinerary");
+      const btn = document.getElementById("viewItinerary");
 
-    if (btn) {
-      btn.onclick = () => {
-        showItinerary(data, false, "home");
+      if (btn) {
+        btn.onclick = () => {
+          showItinerary(data, false, "home");
 
-        const homeSection = document.getElementById("home");
-        const itinerarySection = document.getElementById("itinerary");
+          const homeSection = document.getElementById("home");
+          const itinerarySection = document.getElementById("itinerary");
 
-        homeSection.classList.add("hidden");
-        itinerarySection.classList.remove("hidden");
+          homeSection.classList.add("hidden");
+          itinerarySection.classList.remove("hidden");
 
-        itinerarySection.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      };
+          itinerarySection.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        };
+      }
     }
   } catch (err) {
     console.error(err);
@@ -720,7 +722,7 @@ async function fetchDestinationUnifiedFunc(userInput) {
 
       let imgUrl;
       if (flag === 0) {
-        imgUrl = await fetchHeroImage(top6[i], "", 0);
+        imgUrl = await fetchHeroImage(top6[i], "landscape", 0);
       } else {
         imgUrl = await fetchHeroImage(top6[i], `${userInput} ${type}`, 0);
       }
