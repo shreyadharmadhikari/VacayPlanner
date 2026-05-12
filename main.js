@@ -664,6 +664,9 @@ async function fetchDestinationUnifiedFunc(userInput) {
     const lat = place.lat;
     const lon = place.lon;
     let type = place.result_type; // city/state/country
+    if (type.toLowerCase() === "postcode") {
+      type = "city";
+    }
     console.log(userInput, type);
 
     const placeName = place.city || place.state || place.country;
@@ -676,7 +679,7 @@ async function fetchDestinationUnifiedFunc(userInput) {
     let flag = 0;
 
     /******** FEATURED FIRST ********/
-    if (type === "postcode" && featuredDestinations.cities[userInput]) {
+    if (featuredDestinations.cities[userInput]) {
       const data = featuredDestinations.cities[userInput];
       console.log("present in featured list");
       attractions = data.attractions;
